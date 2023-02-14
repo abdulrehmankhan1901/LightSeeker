@@ -28,8 +28,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* meshComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mesh")
+	USkeletalMeshComponent* meshComponent;
 
 	UPROPERTY(EditAnywhere)
 	UCameraComponent* camera;

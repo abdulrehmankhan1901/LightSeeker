@@ -10,7 +10,7 @@ ACritter::ACritter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("rootComponent")); //create root component; RootComponent is a default variable for initialising the root component
-	meshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("meshComponent")); //create mesh component
+	meshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("meshComponent")); //create mesh component
 	meshComponent->SetupAttachment(GetRootComponent()); //attach mesh component to the root component
 
 	camera = CreateDefaultSubobject<UCameraComponent>(TEXT("camera")); //create camera component
@@ -18,7 +18,7 @@ ACritter::ACritter()
 	camera->SetRelativeLocation(FVector(-300.f, 0.f, 300.f));
 	camera->SetRelativeRotation(FRotator(-45.f, 0.f, 0.f));
 
-	AutoPossessPlayer = EAutoReceiveInput::Player0; //player 0 refers to the first and only player when used in singleplayer games and the first player in multiplayer games
+	//AutoPossessPlayer = EAutoReceiveInput::Player0; //player 0 refers to the first and only player when used in singleplayer games and the first player in multiplayer games
 
 	//player variables
 	currentVelocity = FVector(0.f);

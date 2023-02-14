@@ -42,6 +42,12 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Mesh")
 	USpringArmComponent* springArm;
 
+	//movementComponent
+	UPROPERTY(VisibleAnywhere, Category="Movement")
+	class UColliderMovementComponent* colliderMovementComponent;
+
+	virtual UPawnMovementComponent* GetMovementComponent() const override;
+
 	//-----GETTERS & SETTERS
 	//forceinline: allows to see the function after it as a macro. more efficient, no need to jump to definition everytime it is called. better to use with getters and setters
 	//meshComponent
@@ -61,4 +67,8 @@ private:
 
 	void MoveForward(float value);
 	void MoveRight(float value);
+	void YawnCamera(float axisValue);
+	void PitchCamera(float axisValue);
+
+	FVector2D cameraInput;
 };
