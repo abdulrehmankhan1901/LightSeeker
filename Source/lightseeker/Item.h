@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Sound/SoundCue.h"
 #include "Item.generated.h"
 
 UCLASS()
@@ -19,6 +22,24 @@ public:
 	/** Base Shape Collision */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item | Collision")
 	USphereComponent* CollisionVolume;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item | Mesh")
+	UStaticMeshComponent* StaticMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Particles")
+	UParticleSystemComponent* IdleParticlesComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UParticleSystem* OverlapParticles;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	USoundCue* OverlapSoundCue;
+
+	// for rotating sprites
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties")
+	bool bRotate;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties")
+	float RotationRate;
 
 protected:
 	// Called when the game starts or when spawned

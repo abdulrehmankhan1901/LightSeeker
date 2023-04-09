@@ -2,7 +2,9 @@
 
 
 #include "Item.h"
-
+// for the function to spawn particles during overlap event(s)
+#include "Kismet/GameplayStatics.h" 
+#include "Engine/World.h" // to get the game world
 // Sets default values
 AItem::AItem()
 {
@@ -12,8 +14,15 @@ AItem::AItem()
 	CollisionVolume = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionVolume"));
 	RootComponent = CollisionVolume;
 
+	//can be done in blueprints as well
+	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
+	StaticMesh->SetupAttachment(GetRootComponent());
 	
+	IdleParticlesComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("IdleParticlesComponent"));
+	IdleParticlesComponent->SetupAttachment(GetRootComponent());
 
+	bRotate = false;
+	RotationRate = 45.f;
 }
 
 // Called when the game starts or when spawned
@@ -32,11 +41,25 @@ void AItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (bRotate) {
+		FRotator Rotation = GetActorRotation();
+		Rotation.Yaw += DeltaTime * RotationRate; // rotate the sprite
+		SetActorRotation(Rotation);
+	}
 }
 
 void AItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Super::OnOverlapBegin"));
+
+	if (OverlapParticles) {
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OverlapParticles, GetActorLocation(), FRotator(0.f), true);
+		if (OverlapSoundCue) {
+			UGameplayStatics::PlaySound2D(this, OverlapSoundCue);
+			Destroy();
+		}
+		
+	}
 }
 
 void AItem::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
