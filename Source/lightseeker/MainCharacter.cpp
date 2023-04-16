@@ -40,6 +40,29 @@ AMainCharacter::AMainCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.f, 0.0f); // ... at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 450.f;
 	GetCharacterMovement()->AirControl = 0.2f;
+
+	/**
+	* 
+	* Player Stats
+	* 
+	*/
+	MaxHealth = 100.f;
+	MaxStamina = 200.f;
+	Health = 100.f;
+	Stamina = 200.f;
+	Coins = 0;
+	// Running/Sprinting
+	RunningSpeed = 650.f;
+	SprintingSpeed = 950.f;
+	bSprintKeyDown = false;
+
+	// Initialise Enums
+	MovementStatus = EMovementStatus::EMS_Normal;
+	StaminaStatus = EStaminaStatus::ESS_Normal;
+
+	// Stmaina
+	StaminaDrainRate = 50.f;
+	MinSprintStamina = 50.f;
 }
 
 // Called when the game starts or when spawned
@@ -54,6 +77,56 @@ void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// stamina related operations
+	float DeltaStamina = StaminaDrainRate * DeltaTime;
+
+	switch (StaminaStatus)
+	{
+	case EStaminaStatus::ESS_Normal:
+		if (bSprintKeyDown) {
+			if (Stamina - DeltaStamina <= 0.f) {
+				SetStaminaStatus(EStaminaStatus::ESS_Exhausted);
+				Stamina = 0;
+				SetMovementStatus(EMovementStatus::EMS_Normal);
+			}
+			else {
+				Stamina = Stamina - DeltaStamina;
+				SetMovementStatus(EMovementStatus::EMS_Sprinting);
+			}
+		}
+		else {
+			if (Stamina + DeltaStamina >= MaxStamina) {
+				Stamina = MaxStamina;
+			}
+			else {
+				Stamina = Stamina + DeltaStamina;
+			}
+			SetMovementStatus(EMovementStatus::EMS_Normal);
+		}
+		break;
+	case EStaminaStatus::ESS_Exhausted:
+		if (bSprintKeyDown) {
+			Stamina = 0.f;
+		}
+		else {
+			SetStaminaStatus(EStaminaStatus::ESS_ExhaustedRecovering);
+			Stamina = Stamina + DeltaStamina;
+		}
+		SetMovementStatus(EMovementStatus::EMS_Normal);
+		break;
+	case EStaminaStatus::ESS_ExhaustedRecovering:
+		if (Stamina + DeltaStamina >= MinSprintStamina) {
+			SetStaminaStatus(EStaminaStatus::ESS_Normal);
+			Stamina = Stamina + DeltaStamina;
+		}
+		else {
+			Stamina = Stamina + DeltaStamina;
+		}
+		SetMovementStatus(EMovementStatus::EMS_Normal);
+		break;
+	default:
+		; // empty statement
+	}
 }
 
 // Called to bind functionality to input
@@ -64,6 +137,9 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMainCharacter::SprintKeyDown);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMainCharacter::SprintKeyUp);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMainCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMainCharacter::MoveRight);
@@ -107,4 +183,61 @@ void AMainCharacter::TurnRate(float rate)
 void AMainCharacter::LookupRate(float rate)
 {
 	AddControllerPitchInput(rate * BaseLookupRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AMainCharacter::DecreaseHealth(float amount)
+{
+	if (Health - amount <= 0.f) {
+		Health = Health - amount;
+		Die();
+	}
+	else {
+		Health = Health - amount;
+	}
+}
+
+void AMainCharacter::IncreaseHealth(float amount)
+{
+
+}
+
+void AMainCharacter::Die()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Death"));
+}
+
+void AMainCharacter::IncreaseCoin(int32 amount) 
+{
+	Coins = Coins + amount;
+}
+
+void AMainCharacter::DecreaseCoin(int32 amount)
+{
+	if (Coins - amount <= 0.f) {
+		UE_LOG(LogTemp, Warning, TEXT("Out of Coins"));
+	}
+	else {
+		Coins = Coins - amount;
+	}
+}
+
+void AMainCharacter::SetMovementStatus(EMovementStatus NewStatus)
+{
+	MovementStatus = NewStatus;
+	if (MovementStatus == EMovementStatus::EMS_Sprinting) {
+		GetCharacterMovement()->MaxWalkSpeed = SprintingSpeed;
+	}
+	else {
+		GetCharacterMovement()->MaxWalkSpeed = RunningSpeed;
+	}
+}
+
+void AMainCharacter::SprintKeyDown()
+{
+	bSprintKeyDown = true;
+}
+
+void AMainCharacter::SprintKeyUp()
+{
+	bSprintKeyDown = false;
 }

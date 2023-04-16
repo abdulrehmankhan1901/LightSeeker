@@ -3,11 +3,15 @@
 
 #include "MC_AnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "MainCharacter.h"
 
 void UMC_AnimInstance::NativeInitializeAnimation()
 {
 	if (Pawn == nullptr) {
 		Pawn = TryGetPawnOwner();
+		if (Pawn) {
+			MainCharacter = Cast<AMainCharacter>(Pawn);
+		}
 	}
 
 }
@@ -24,5 +28,9 @@ void UMC_AnimInstance::UpdateAnimProps()
 		MovementSpeed = LateralSpeed.Size();
 
 		bInAir = Pawn->GetMovementComponent()->IsFalling();
+
+		if (MainCharacter == nullptr) {
+			MainCharacter = Cast<AMainCharacter>(Pawn);
+		}
 	}
 }
