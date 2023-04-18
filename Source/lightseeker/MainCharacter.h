@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Weapon.h"
 #include "MainCharacter.generated.h"
 
 UENUM(BlueprintType)
@@ -35,6 +36,12 @@ class LIGHTSEEKER_API AMainCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AMainCharacter();
+
+	//array for item locations
+	TArray<FVector> PickupLocations;
+
+	UFUNCTION(BlueprintCallable)
+	void ShowPickupLocations();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Enums")
 	EMovementStatus MovementStatus;
@@ -130,6 +137,12 @@ public:
 	*/
 	void LookupRate(float rate);
 
+
 	FORCEINLINE USpringArmComponent* getCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* getFollowCamera() const { return FollowCamera; }
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
+	AWeapon* EquippedWeapon;
+
+	FORCEINLINE void SetEquippedWeapon(AWeapon* Weapon) { EquippedWeapon = Weapon; }
 };

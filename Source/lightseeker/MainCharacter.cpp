@@ -5,6 +5,7 @@
 #include "Engine/World.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -240,4 +241,16 @@ void AMainCharacter::SprintKeyDown()
 void AMainCharacter::SprintKeyUp()
 {
 	bSprintKeyDown = false;
+}
+
+void AMainCharacter::ShowPickupLocations()
+{
+	for (int32 i = 0; i < PickupLocations.Num(); i++) {
+		UKismetSystemLibrary::DrawDebugSphere(this, PickupLocations[i], 25.f, 12, FLinearColor::Black, 10.f, .1f);
+	}
+
+	// range based for loop
+	/*for (auto Location : PickupLocations) {
+		UKismetSystemLibrary::DrawDebugSphere(this, Location, 25.f, 12, FLinearColor::Black, 10.f, .1f);
+	}*/
 }

@@ -56,7 +56,6 @@ void AItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OverlapParticles, GetActorLocation(), FRotator(0.f), true);
 		if (OverlapSoundCue) {
 			UGameplayStatics::PlaySound2D(this, OverlapSoundCue);
-			Destroy();
 		}
 		
 	}

@@ -19,6 +19,7 @@ void AExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor
 		AMainCharacter* MC = Cast<AMainCharacter>(OtherActor); // will return NULL if casting not possible/OtherActor is NULL
 		if (MC) {
 			MC->DecreaseHealth(Damage);
+			Destroy();
 		}
 	}
 }

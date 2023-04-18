@@ -19,6 +19,8 @@ void APickable::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor*
 		AMainCharacter* MC = Cast<AMainCharacter>(OtherActor);
 		if (MC) {
 			MC->IncreaseCoin(CoinInc);
+			MC->PickupLocations.Add(GetActorLocation());
+			Destroy();
 		}
 	}
 }
