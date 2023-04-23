@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Weapon.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -56,6 +57,8 @@ AMainCharacter::AMainCharacter()
 	RunningSpeed = 650.f;
 	SprintingSpeed = 950.f;
 	bSprintKeyDown = false;
+
+	bLMBorXDown = false;
 
 	// Initialise Enums
 	MovementStatus = EMovementStatus::EMS_Normal;
@@ -142,6 +145,9 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMainCharacter::SprintKeyDown);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMainCharacter::SprintKeyUp);
 
+	PlayerInputComponent->BindAction("LMBorX", IE_Pressed, this, &AMainCharacter::LMBorXDown);
+	PlayerInputComponent->BindAction("LMBorX", IE_Released, this, &AMainCharacter::LMBorXUp);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMainCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMainCharacter::MoveRight);
 
@@ -186,6 +192,24 @@ void AMainCharacter::LookupRate(float rate)
 	AddControllerPitchInput(rate * BaseLookupRate * GetWorld()->GetDeltaSeconds());
 }
 
+void AMainCharacter::LMBorXDown()
+{
+	bLMBorXDown = true;
+	if (ActiveOverlappingItem) {
+		AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
+		if (Weapon) {
+			Weapon->Equip(this);
+			SetActiveOverlappingItem(nullptr);
+		}
+	}
+}
+
+void AMainCharacter::LMBorXUp()
+{
+	bLMBorXDown = false;
+}
+
+// stat related
 void AMainCharacter::DecreaseHealth(float amount)
 {
 	if (Health - amount <= 0.f) {
@@ -253,4 +277,10 @@ void AMainCharacter::ShowPickupLocations()
 	/*for (auto Location : PickupLocations) {
 		UKismetSystemLibrary::DrawDebugSphere(this, Location, 25.f, 12, FLinearColor::Black, 10.f, .1f);
 	}*/
+}
+
+void AMainCharacter::SetEquippedWeapon(AWeapon* Weapon)
+{
+	if (EquippedWeapon) { EquippedWeapon->Destroy(); }
+	EquippedWeapon = Weapon;
 }

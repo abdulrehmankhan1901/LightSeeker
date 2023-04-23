@@ -7,6 +7,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Weapon.h"
+#include "Item.h"
 #include "MainCharacter.generated.h"
 
 UENUM(BlueprintType)
@@ -137,6 +138,9 @@ public:
 	*/
 	void LookupRate(float rate);
 
+	bool bLMBorXDown;
+	void LMBorXDown();
+	void LMBorXUp();
 
 	FORCEINLINE USpringArmComponent* getCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* getFollowCamera() const { return FollowCamera; }
@@ -144,5 +148,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
 	AWeapon* EquippedWeapon;
 
-	FORCEINLINE void SetEquippedWeapon(AWeapon* Weapon) { EquippedWeapon = Weapon; }
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items")
+	AItem* ActiveOverlappingItem;
+
+	void SetEquippedWeapon(AWeapon* Weapon);
+
+	FORCEINLINE AWeapon* GetEquippedWeapon() { return EquippedWeapon; }
+	FORCEINLINE void SetActiveOverlappingItem(AItem* Item) { ActiveOverlappingItem = Item; }
 };
