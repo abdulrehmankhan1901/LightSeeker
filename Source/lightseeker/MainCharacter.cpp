@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Weapon.h"
+#include "Animation/AnimInstance.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -58,7 +59,7 @@ AMainCharacter::AMainCharacter()
 	SprintingSpeed = 950.f;
 	bSprintKeyDown = false;
 
-	bLMBorXDown = false;
+	bLMBDown = false;
 
 	// Initialise Enums
 	MovementStatus = EMovementStatus::EMS_Normal;
@@ -145,8 +146,8 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMainCharacter::SprintKeyDown);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMainCharacter::SprintKeyUp);
 
-	PlayerInputComponent->BindAction("LMBorX", IE_Pressed, this, &AMainCharacter::LMBorXDown);
-	PlayerInputComponent->BindAction("LMBorX", IE_Released, this, &AMainCharacter::LMBorXUp);
+	PlayerInputComponent->BindAction("LMBorRB", IE_Pressed, this, &AMainCharacter::LMBDown);
+	PlayerInputComponent->BindAction("LMBorRB", IE_Released, this, &AMainCharacter::LMBUp);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMainCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMainCharacter::MoveRight);
@@ -160,7 +161,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void AMainCharacter::MoveForward(float value)
 {
-	if ((Controller != nullptr) && (value != 0.0f)) {
+	if ((Controller != nullptr) && (value != 0.0f) && (!bAttacking)) {
 		// find the forward direction
 		const FRotator rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.0f, rotation.Yaw,0.f);
@@ -172,7 +173,7 @@ void AMainCharacter::MoveForward(float value)
 
 void AMainCharacter::MoveRight(float value)
 {
-	if ((Controller != nullptr) && (value != 0.0f)) {
+	if ((Controller != nullptr) && (value != 0.0f) && (!bAttacking) ) {
 		// find the forward direction
 		const FRotator rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.0f, rotation.Yaw, 0.f);
@@ -192,9 +193,9 @@ void AMainCharacter::LookupRate(float rate)
 	AddControllerPitchInput(rate * BaseLookupRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AMainCharacter::LMBorXDown()
+void AMainCharacter::LMBDown()
 {
-	bLMBorXDown = true;
+	bLMBDown = true;
 	if (ActiveOverlappingItem) {
 		AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
 		if (Weapon) {
@@ -202,11 +203,14 @@ void AMainCharacter::LMBorXDown()
 			SetActiveOverlappingItem(nullptr);
 		}
 	}
+	else if (EquippedWeapon) {
+		Attack();
+	}
 }
 
-void AMainCharacter::LMBorXUp()
+void AMainCharacter::LMBUp()
 {
-	bLMBorXDown = false;
+	bLMBDown = false;
 }
 
 // stat related
@@ -283,4 +287,24 @@ void AMainCharacter::SetEquippedWeapon(AWeapon* Weapon)
 {
 	if (EquippedWeapon) { EquippedWeapon->Destroy(); }
 	EquippedWeapon = Weapon;
+}
+
+void AMainCharacter::Attack()
+{
+	if (!bAttacking) {
+		bAttacking = true;
+
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+		if (AnimInstance && CombatMontage) {
+			AnimInstance->Montage_Play(CombatMontage, 1.35f);
+			AnimInstance->Montage_JumpToSection(FName("Attack_1"), CombatMontage);
+		}
+	}
+	
+}
+
+void AMainCharacter::AttackEnd()
+{
+	bAttacking = false;
 }

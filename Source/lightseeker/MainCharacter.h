@@ -100,15 +100,11 @@ public:
 	float Stamina;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Stats")
 	int32 Coins;
-	UFUNCTION()
+
 	void DecreaseHealth(float amount);
-	UFUNCTION()
 	void IncreaseHealth(float amount);
-	UFUNCTION()
 	void Die(); // call when health < 0 or a death event occurs
-	UFUNCTION()
 	void IncreaseCoin(int32 amount);
-	UFUNCTION()
 	void DecreaseCoin(int32 amount);
 
 protected:
@@ -138,9 +134,9 @@ public:
 	*/
 	void LookupRate(float rate);
 
-	bool bLMBorXDown;
-	void LMBorXDown();
-	void LMBorXUp();
+	bool bLMBDown;
+	void LMBDown();
+	void LMBUp();
 
 	FORCEINLINE USpringArmComponent* getCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* getFollowCamera() const { return FollowCamera; }
@@ -155,4 +151,16 @@ public:
 
 	FORCEINLINE AWeapon* GetEquippedWeapon() { return EquippedWeapon; }
 	FORCEINLINE void SetActiveOverlappingItem(AItem* Item) { ActiveOverlappingItem = Item; }
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
+	bool bAttacking;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
+	UAnimMontage* CombatMontage;
+
+	void Attack();
+
+	UFUNCTION(BlueprintCallable)
+	void AttackEnd();
+	
 };
