@@ -20,7 +20,19 @@ public:
 	UBoxComponent* SpawningBox;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawning")
-	TSubclassOf<class ACritter> PawnToSpawn; //specifies a class that can be chosen from a drop down inside the editor
+	TSubclassOf<class AActor> ActorToSpawn1; //specifies a class that can be chosen from a drop down inside the editor
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawning")
+	TSubclassOf<class AActor> ActorToSpawn2; //specifies a class that can be chosen from a drop down inside the editor
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawning")
+	TSubclassOf<class AActor> ActorToSpawn3; //specifies a class that can be chosen from a drop down inside the editor
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawning")
+	TSubclassOf<class AActor> ActorToSpawn4; //specifies a class that can be chosen from a drop down inside the editor
+
+	// for storing the actors to spawn
+	TArray<TSubclassOf<AActor>> SpawnArray;
 
 protected:
 	// Called when the game starts or when spawned
@@ -33,7 +45,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Spawning") //BlueprintPure: only returns a value, has no input connections in blueprints
 	FVector GetSpawnPoint();
 
+	UFUNCTION(BlueprintPure, Category = "Spawning") //BlueprintPure: only returns a value, has no input connections in blueprints
+	TSubclassOf<AActor> GetSpawnActor();
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Spawning")	//BlueprintNativeEvent: have functionality for both C++ and Blueprints, a hybrid;
-	void SpawnPawn(UClass* ToSpawn, const FVector& Location);	//UClass: highest in hierarchy, allows to be a general pass; 
+	void SpawnActor(UClass* ToSpawn, const FVector& Location);	//UClass: highest in hierarchy, allows to be a general pass; 
 
 };

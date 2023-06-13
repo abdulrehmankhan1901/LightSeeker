@@ -3,8 +3,6 @@
 
 #include "Item.h"
 // for the function to spawn particles during overlap event(s)
-#include "Kismet/GameplayStatics.h" 
-#include "Engine/World.h" // to get the game world
 // Sets default values
 AItem::AItem()
 {
@@ -50,18 +48,10 @@ void AItem::Tick(float DeltaTime)
 
 void AItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Super::OnOverlapBegin"));
-
-	if (OverlapParticles) {
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OverlapParticles, GetActorLocation(), FRotator(0.f), true);
-		if (OverlapSoundCue) {
-			UGameplayStatics::PlaySound2D(this, OverlapSoundCue);
-		}
-		
-	}
+	//UE_LOG(LogTemp, Warning, TEXT("Super::OnOverlapBegin"));
 }
 
 void AItem::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Super::OnOverlapEnd"));
+	//UE_LOG(LogTemp, Warning, TEXT("Super::OnOverlapEnd"));
 }

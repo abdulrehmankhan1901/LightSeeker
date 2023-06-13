@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "Weapon.h"
 #include "Item.h"
+#include "ItemStorage.h"
 #include "MainCharacter.generated.h"
 
 UENUM(BlueprintType)
@@ -15,6 +16,7 @@ enum class EMovementStatus : uint8
 {
 	EMS_Normal UMETA(DisplayName = "Normal"),
 	EMS_Sprinting UMETA(DisplayName = "Sprinting"),
+	EMS_Dead UMETA(DisplayName = "Dead"),
 
 	EMS_MAX UMETA(DisplayName = "DefaultMAX")
 };
@@ -38,6 +40,20 @@ public:
 	// Sets default values for this character's properties
 	AMainCharacter();
 
+	UPROPERTY(EditDefaultsOnly, Category = "SaveData")
+	TSubclassOf<AItemStorage> WeaponStorage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bHasCombatTarget;
+
+	FORCEINLINE void SetHasCombatTarget(bool HasTarget) { bHasCombatTarget = HasTarget; }
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Combat")
+	FVector CombatTargetLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Controller")
+	class AMainCharPlayerController* MainCharPlayerController;
+
 	//array for item locations
 	TArray<FVector> PickupLocations;
 
@@ -56,6 +72,17 @@ public:
 	float StaminaDrainRate;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MinSprintStamina;
+
+	float InterpSpeed;
+	bool bInterpToEnemy;
+	void SetbInterToEnemy(bool Interp);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	class AEnemy* CombatTarget;
+
+	FORCEINLINE void SetCombatTarget(AEnemy* Target) { CombatTarget = Target; }
+
+	FRotator GetLookAtRotationYaw(FVector Target); // pass location of combat target as parameter
 
 	// set movement status and running speed
 	void SetMovementStatus(EMovementStatus NewStatus);
@@ -84,6 +111,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	float BaseLookupRate;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	UParticleSystem* HitParticles;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	USoundCue* HitSound;
+
 	/**
 	* 
 	* Player Stats
@@ -101,10 +133,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Stats")
 	int32 Coins;
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
+	UFUNCTION(BlueprintCallable)
 	void DecreaseHealth(float amount);
+
+	UFUNCTION(BlueprintCallable)
 	void IncreaseHealth(float amount);
+
 	void Die(); // call when health < 0 or a death event occurs
+
+	UFUNCTION(BlueprintCallable)
 	void IncreaseCoin(int32 amount);
+
 	void DecreaseCoin(int32 amount);
 
 protected:
@@ -121,8 +162,12 @@ public:
 	// called for forward/backward input
 	void MoveForward(float value);
 
+	bool bMovingForward;
+
 	//called for right/left input
 	void MoveRight(float value);
+
+	bool bMovingRight;
 
 	/** Called via input to look up/down at given rate
 	* @param rate is a normalised rate i.e 1.0 means 100% of desired look up/down rate
@@ -134,9 +179,15 @@ public:
 	*/
 	void LookupRate(float rate);
 
+	virtual void Jump() override;
+
 	bool bLMBDown;
 	void LMBDown();
 	void LMBUp();
+
+	bool bESCDown;
+	void ESCDown();
+	void ESCUp();
 
 	FORCEINLINE USpringArmComponent* getCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* getFollowCamera() const { return FollowCamera; }
@@ -162,5 +213,42 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
+
+	UFUNCTION(BlueprintCallable)
+	void PlaySound();
+
+	UFUNCTION(BlueprintCallable)
+	void DeathEnd();
+
+
+	void UpdateCombatTarget();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	TSubclassOf<AEnemy> EnemyFilter;
+
+	void Roll();
+	bool bRolling;
+
+	UFUNCTION(BlueprintCallable)
+	bool GetRolling();
+
+	UFUNCTION(BlueprintCallable)
+	void Invincibility();
+
+	UFUNCTION(BlueprintCallable)
+	void InvincibilityEnd();
 	
+	void SwitchLevel(FName LevelName);
+
+	UFUNCTION(BlueprintCallable)
+	void SaveGame();
+
+	UFUNCTION(BlueprintCallable)
+	void LoadGame(bool SetPosition);
+
+	void LoadGameNoSwitch();
+
+	UFUNCTION(BlueprintCallable)
+	void NewGame();
+
 };

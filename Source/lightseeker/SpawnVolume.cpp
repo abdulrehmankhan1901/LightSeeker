@@ -21,6 +21,18 @@ void ASpawnVolume::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (ActorToSpawn1) {
+		SpawnArray.Add(ActorToSpawn1);
+	}
+	if (ActorToSpawn2) {
+		SpawnArray.Add(ActorToSpawn2);
+	}
+	if (ActorToSpawn3) {
+		SpawnArray.Add(ActorToSpawn3);
+	}
+	if (ActorToSpawn4) {
+		SpawnArray.Add(ActorToSpawn1);
+	}
 }
 
 // Called every frame
@@ -40,14 +52,26 @@ FVector ASpawnVolume::GetSpawnPoint()
 	return Point;
 }
 
-void ASpawnVolume::SpawnPawn_Implementation(UClass* ToSpawn, const FVector& Location)	//mandatory when coding BlueprintNativeEvents, _Implementation tells UE that this is the implementation
+void ASpawnVolume::SpawnActor_Implementation(UClass* ToSpawn, const FVector& Location)	//mandatory when coding BlueprintNativeEvents, _Implementation tells UE that this is the implementation
 {
 	if (ToSpawn) {
 		UWorld* World = GetWorld();
 		FActorSpawnParameters SpawnParameters;
 
 		if (World) {
-			ACritter* SpawnedCritter = World->SpawnActor<ACritter>(ToSpawn, Location, FRotator(0.f), SpawnParameters); //creates and returns the specified spawn
+			World->SpawnActor<AActor>(ToSpawn, Location, FRotator(0.f), SpawnParameters); //creates and returns the specified spawn
 		}
+	}
+}
+
+TSubclassOf<AActor> ASpawnVolume::GetSpawnActor() 
+{
+	if (SpawnArray.Num() > 0) {
+		int32 Selection = FMath::RandRange(0, SpawnArray.Num() - 1);
+
+		return SpawnArray[Selection];
+	}
+	else {
+		return nullptr;
 	}
 }
